@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>Futuristic Precision Stopwatch & Timer PWA</title>
+  <meta name="description" content="An enterprise-grade high-precision stopwatch and countdown timer with session history, line graph analytics, sound synthesizer, achievements, and CSV reports.">
+  <meta name="theme-color" content="#00f2fe">
+  
+  <!-- PWA Manifest & iOS Support -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-512.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icon-512.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-cyan dark-mode">
+  <!-- Animated background blobs -->
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- In-app Toast Notification Alert -->
+  <div id="toast-notification" class="toast-container hidden">
+    <div class="toast-content">
+      <div class="toast-icon" id="toast-icon">⚡</div>
+      <div class="toast-text">
+        <h4 id="toast-title">Achievement Unlocked!</h4>
+        <p id="toast-message">Speed Demon - Recorded a lap under 10 seconds.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Countdown Overlay -->
+  <div id="alarm-overlay" class="alarm-overlay hidden">
+    <div class="alarm-card">
+      <div class="alarm-ringing-icon">
+        <svg viewBox="0 0 24 24" width="64" height="64" stroke="currentColor" stroke-width="1.5" fill="none" class="bell-animation"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+      </div>
+      <h2>Time is Up!</h2>
+      <p>Your countdown timer has completed.</p>
+      <button id="dismiss-alarm-btn" class="control-btn primary">Dismiss Alarm</button>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-tag">SKILLCRAFT TECHNOLOGY</span>
+        <h1>Precision Time Suite</h1>
+      </div>
+      
+      <!-- Utility Controls -->
+      <div class="header-controls">
+        <!-- Light / Dark Mode Toggle -->
+        <button id="theme-toggle" class="icon-btn" title="Toggle Light/Dark Mode (Press D)" aria-label="Toggle Light/Dark Mode">
+          <svg class="sun-icon hidden" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button id="sound-toggle" class="icon-btn" title="Toggle Audio Synth (Press M)" aria-label="Toggle Sound">
+          <svg class="sound-on-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          <svg class="sound-off-icon hidden" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+        </button>
+        
+        <!-- Gradient theme selection dots -->
+        <div class="theme-selector">
+          <button class="theme-dot active" data-theme="cyan" title="Electric Cyan" style="background: linear-gradient(135deg, #00f2fe, #4facfe);"></button>
+          <button class="theme-dot" data-theme="purple" title="Cyber Neon" style="background: linear-gradient(135deg, #f97794, #623aa2);"></button>
+          <button class="theme-dot" data-theme="orange" title="Sunset Flame" style="background: linear-gradient(135deg, #f6d365, #fda085);"></button>
+          <button class="theme-dot" data-theme="green" title="Emerald Mint" style="background: linear-gradient(135deg, #43e97b, #38f9d7);"></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- App Mode Toggle: Stopwatch or Countdown Timer -->
+    <div class="app-mode-selector">
+      <button id="mode-stopwatch" class="mode-tab-btn active">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Stopwatch
+      </button>
+      <button id="mode-timer" class="mode-tab-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path><path d="M16.24 7.76a6 6 0 1 0 0 8.49"></path></svg>
+        Countdown Timer
+      </button>
+    </div>
+
+    <!-- Main Content Workspace -->
+    <main class="main-content">
+      <!-- HERO Left Card: Time Visualizer and Basic controls -->
+      <section class="stopwatch-display-card">
+        <div class="stopwatch-case">
+          <!-- Physical case buttons matching the analog stopwatch -->
+          <div class="case-crown"></div>
+          <div class="case-button-right"></div>
+          
+          <div class="visualizer-container">
+            <!-- Circular Progress Ring (SVG) -->
+            <svg class="progress-ring" viewBox="0 0 200 200">
+              <circle class="progress-ring-bg" cx="100" cy="100" r="88" />
+              <!-- Detailed analog tick scale lines group -->
+              <g id="dial-ticks" class="dial-ticks-group"></g>
+              
+              <!-- 60, 15, 30, 45 numbers -->
+              <text class="dial-number" x="100" y="31" text-anchor="middle">60</text>
+              <text class="dial-number" x="171" y="103" text-anchor="middle">15</text>
+              <text class="dial-number" x="100" y="175" text-anchor="middle">30</text>
+              <text class="dial-number" x="29" y="103" text-anchor="middle">45</text>
+              
+              <!-- Glowing arcs -->
+              <circle id="progress-indicator" class="progress-ring-fg" cx="100" cy="100" r="88" />
+              
+              <!-- Analog Sweeper Hand -->
+              <line id="sweeper-hand" x1="100" y1="100" x2="100" y2="18" />
+              <circle cx="100" cy="100" r="4.5" fill="var(--theme-color-secondary)" />
+            </svg>
+
+            <!-- Floating inside content -->
+            <div class="timer-values">
+              <span id="timer-mode-tag" class="timer-mode">STOPWATCH MODE</span>
+              
+              <!-- In-place Time Display with Chevron Adjusters -->
+              <div class="time-main-display">
+                <div class="time-column">
+                  <button class="adjust-time-btn up hidden" id="adj-hours-up" aria-label="Increase Hours">▲</button>
+                  <span id="display-hours" class="time-part">00</span>
+                  <button class="adjust-time-btn down hidden" id="adj-hours-down" aria-label="Decrease Hours">▼</button>
+                </div>
+                <span class="time-sep">:</span>
+                
+                <div class="time-column">
+                  <button class="adjust-time-btn up hidden" id="adj-mins-up" aria-label="Increase Minutes">▲</button>
+                  <span id="display-minutes" class="time-part">00</span>
+                  <button class="adjust-time-btn down hidden" id="adj-mins-down" aria-label="Decrease Minutes">▼</button>
+                </div>
+                <span class="time-sep">:</span>
+                
+                <div class="time-column">
+                  <button class="adjust-time-btn up hidden" id="adj-secs-up" aria-label="Increase Seconds">▲</button>
+                  <span id="display-seconds" class="time-part">00</span>
+                  <button class="adjust-time-btn down hidden" id="adj-secs-down" aria-label="Decrease Seconds">▼</button>
+                </div>
+              </div>
+
+              <!-- Sub milliseconds -->
+              <div class="time-sub-display">
+                <span id="display-millis" class="millis-part">000</span>
+              </div>
+              
+              <!-- Live lap info or timer set description -->
+              <div class="current-lap-preview" id="current-lap-preview">
+                Lap 1: 00:00:00.000
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timer controls buttons -->
+        <div class="controls-panel">
+          <button id="lap-btn" class="control-btn secondary" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"></path></svg>
+            <span id="lap-btn-text">Lap</span>
+          </button>
+          
+          <button id="start-btn" class="control-btn primary">
+            <svg class="play-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <svg class="pause-icon hidden" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+            <span>Start</span>
+          </button>
+
+          <button id="reset-btn" class="control-btn secondary" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+            <span>Reset</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- DASHBOARD Right Card: Dynamic content folders with sub tabs -->
+      <section class="dashboard-card">
+        <!-- Dashboard Tabs Navigation -->
+        <nav class="dashboard-tabs">
+          <button class="tab-link active" data-tab="laps">Laps</button>
+          <button class="tab-link" data-tab="analytics">Analytics</button>
+          <button class="tab-link" data-tab="history">History</button>
+          <button class="tab-link" data-tab="insights">Insights</button>
+        </nav>
+        
+        <div class="tab-viewport">
+          <!-- 1. Laps Tab Content -->
+          <div id="tab-content-laps" class="tab-pane active">
+            <div class="tab-pane-header">
+              <h3>Recorded Split Times</h3>
+              <span class="laps-counter" id="lap-count-tag">No Laps</span>
+            </div>
+            
+            <div class="laps-list-wrapper">
+              <div class="laps-empty-state" id="laps-empty">
+                <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1" fill="none" class="empty-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <p>Start the timer and record splits to populate stats.</p>
+              </div>
+
+              <table class="laps-table hidden" id="laps-table">
+                <thead>
+                  <tr>
+                    <th>Lap</th>
+                    <th>Split Time</th>
+                    <th>Total Time</th>
+                  </tr>
+                </thead>
+                <tbody id="laps-list-body">
+                  <!-- JS generated rows -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Export options -->
+            <div class="export-actions-wrapper hidden" id="laps-export-panel">
+              <button id="btn-export-csv" class="export-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+                Export CSV
+              </button>
+              <button id="btn-print-report" class="export-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><polygon points="6 9 6 2 18 2 18 9 6 9"></polygon><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Print Report
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Analytics Tab Content -->
+          <div id="tab-content-analytics" class="tab-pane">
+            <div class="tab-pane-header">
+              <h3>Performance Indicators</h3>
+            </div>
+            
+            <div class="analytics-layout">
+              <!-- Summary Grid -->
+              <div class="stats-summary-grid">
+                <div class="stat-card">
+                  <div class="stat-label">Best Lap</div>
+                  <div class="stat-value" id="stat-best-lap">--:--.---</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Worst Lap</div>
+                  <div class="stat-value" id="stat-worst-lap">--:--.---</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Average Lap</div>
+                  <div class="stat-value" id="stat-avg-lap">--:--.---</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Total Duration</div>
+                  <div class="stat-value" id="stat-total-duration">--:--.---</div>
+                </div>
+              </div>
+
+              <!-- SVG Graph Container -->
+              <div class="graph-card">
+                <h4>Lap Speed Variance (Secs)</h4>
+                <div class="svg-graph-wrapper" id="svg-graph-container">
+                  <div class="empty-graph-overlay" id="graph-empty-overlay">
+                    <p>Record laps to construct graph plot.</p>
+                  </div>
+                  <!-- Inline SVG Line Chart is injected here dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Session History Tab Content -->
+          <div id="tab-content-history" class="tab-pane">
+            <div class="tab-pane-header">
+              <h3>History Database</h3>
+              <button id="btn-clear-history" class="text-action-btn">Clear All</button>
+            </div>
+            
+            <div class="history-list-wrapper" id="history-list-container">
+              <!-- JS builds dynamic sessions accordion here -->
+            </div>
+          </div>
+
+          <!-- 4. Insights & Achievements Tab Content -->
+          <div id="tab-content-insights" class="tab-pane">
+            <div class="tab-pane-header">
+              <h3>AI Performance Coach</h3>
+            </div>
+            
+            <div class="insights-layout">
+              <!-- Insight Coach Card -->
+              <div class="coach-insight-card">
+                <div class="coach-avatar">🧠</div>
+                <div class="coach-bubble">
+                  <p id="ai-insight-text">Awaiting session activity. Record split times or run a countdown session to receive performance coaching analysis.</p>
+                </div>
+              </div>
+
+              <!-- Achievement Badges Card -->
+              <div class="achievements-section">
+                <h4>Unlocked Badges</h4>
+                <div class="badges-flex-container">
+                  <div class="badge-item locked" id="badge-first-lap" title="Complete 1st Lap">
+                    <div class="badge-icon">🏁</div>
+                    <div class="badge-title">First Step</div>
+                  </div>
+                  <div class="badge-item locked" id="badge-speed-demon" title="Lap duration under 10 seconds">
+                    <div class="badge-icon">⚡</div>
+                    <div class="badge-title">Speed Demon</div>
+                  </div>
+                  <div class="badge-item locked" id="badge-steady-run" title="Laps are recorded within 1s variance of each other">
+                    <div class="badge-icon">🎯</div>
+                    <div class="badge-title">Steady Pace</div>
+                  </div>
+                  <div class="badge-item locked" id="badge-endurance" title="Record more than 10 laps in a single run">
+                    <div class="badge-icon">🏆</div>
+                    <div class="badge-title">Endurance</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer & Keyboard Shortcuts -->
+    <footer class="app-footer">
+      <div class="shortcuts-legend">
+        <span class="shortcut"><kbd>Space</kbd> Start/Pause</span>
+        <span class="shortcut"><kbd>L</kbd> Lap</span>
+        <span class="shortcut"><kbd>R</kbd> Reset</span>
+        <span class="shortcut"><kbd>T</kbd> Toggle Theme</span>
+        <span class="shortcut"><kbd>D</kbd> Light Mode</span>
+        <span class="shortcut"><kbd>M</kbd> Mute</span>
+      </div>
+      <p class="copyright">&copy; 2026 SkillCraft Technology. All Rights Reserved.</p>
+    </footer>
+  </div>
+
+  <!-- Script File -->
+  <script src="app.js"></script>
+</body>
+</html>

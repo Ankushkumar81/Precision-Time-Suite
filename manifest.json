@@ -1,0 +1,18 @@
+{
+  "short_name": "Stopwatch PWA",
+  "name": "Futuristic Precision Stopwatch & Timer PWA",
+  "description": "An enterprise-grade high-precision stopwatch and countdown timer with history, statistics, sound effects, achievements, and CSV reports.",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0a0b10",
+  "theme_color": "#00f2fe",
+  "display": "standalone",
+  "orientation": "portrait-primary"
+}
